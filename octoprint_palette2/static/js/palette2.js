@@ -82,7 +82,7 @@ function OmegaViewModel(parameters) {
   self.variationPingStart = ko.observable(1);
   self.variationPctStatus = ko.computed(function () {
     const variationPingStart = Number(self.variationPingStart());
-    if (self.pings().length > variationPingStart) {
+    if (self.pings().length >= variationPingStart) {
       const variation = Number(self.variationPct());
       const upperBound = self.pings()[0].percent + variation;
       const lowerBound = self.pings()[0].percent - variation;
