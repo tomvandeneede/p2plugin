@@ -1007,6 +1007,7 @@ class Omega():
         self.autoVariationCancelPing = self._settings.get(["autoVariationCancelPing"])
         self.showPingOnPrinter = self._settings.get(["showPingOnPrinter"])
         self.variationPct = self._settings.get(["variationPct"])
+        self.variationPingStart = self._settings.get(["variationPingStart"])
         self.advanced_reset_print_values()
 
     def advanced_reset_print_values(self):
@@ -1123,12 +1124,10 @@ class Omega():
     def changeVariationPct(self, value):
         if self.isPositiveInteger(value):
             clean_value = int(value)
-            advanced_status = ""
             if clean_value == self.variationPct:
                 self._logger.info("Variation percent did not change. Do nothing")
             elif clean_value > 100:
                 self._logger.info("Cannot set variation percent above 100%.")
-                advanced_status = 'Cannot set variation percent above 100%%. Keeping variation range at +/- (%s%%).' % self.variationPct
                 self.updateUI({"command": "advanced", "subCommand": "variationPct", "data": self._settings.get(["variationPct"])})
             else:
                 try:
@@ -1142,6 +1141,23 @@ class Omega():
             self._logger.info("Not positive integer")
             self.updateUI({"command": "advanced", "subCommand": "variationPct", "data": self._settings.get(["variationPct"])})
 
+    def changeVariationPingStart(self, value):
+        if self.isPositiveInteger(value):
+            clean_value = int(value)
+            if clean_value == self.variationPingStart:
+                self._logger.info("Variation start ping did not change. Do nothing")
+            else:
+                try:
+                    self._settings.set(["variationPingStart"], clean_value)
+                    self._settings.save(force=True)
+                    self._logger.info("ADVANCED: variationPingStart -> '%s' '%s'" % (clean_value, self._settings.get(["variationPingStart"])))
+                    self.variationPingStart = self._settings.get(["variationPingStart"])
+                except Exception as e:
+                    self._logger.info(e)
+        else:
+            self._logger.info("Not positive integer")
+            self.updateUI({"command": "advanced", "subCommand": "variationPingStart", "data": self._settings.get(["variationPingStart"])})
+
     def advanced_update_variables(self):
         self.autoVariationCancelPing = self._settings.get(["autoVariationCancelPing"])
         self.showPingOnPrinter = self._settings.get(["showPingOnPrinter"])
@@ -1149,6 +1165,7 @@ class Omega():
         self.feedRateNormalPct = self._settings.get(["feedRateNormalPct"])
         self.feedRateSlowPct = self._settings.get(["feedRateSlowPct"])
         self.variationPct = self._settings.get(["variationPct"])
+        self.variationPingStart = self._settings.get(["variationPingStart"])
         self.advanced_updateUI()
 
     def isPositiveInteger(self, value):
@@ -1427,7 +1444,7 @@ class Omega():
             self.startAutoLoadThread()
 
     def handlePingVariation(self):
-        if self.autoVariationCancelPing and len(self.pings) > 1:
+        if self.autoVariationCancelPing and len(self.pings) > self.variationPingStart:
             try:
                 currentPing = self.pings[-1]["percent"]
                 previousPing = self.pings[-2]["percent"]

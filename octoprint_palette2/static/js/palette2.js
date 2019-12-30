@@ -79,14 +79,16 @@ function OmegaViewModel(parameters) {
   // Advanced options observables
   self.autoVariationCancelPing = ko.observable(true);
   self.variationPct = ko.observable(8);
+  self.variationPingStart = ko.observable(1);
   self.variationPctStatus = ko.computed(function () {
-    if (self.pings().length > 0) {
+    const variationPingStart = Number(self.variationPingStart());
+    if (self.pings().length > variationPingStart) {
       const variation = Number(self.variationPct());
       const upperBound = self.pings()[0].percent + variation;
       const lowerBound = self.pings()[0].percent - variation;
       return `An upcoming ping greater than ${upperBound}% or lower than ${lowerBound}% will cancel your print`;
     } else {
-      return `No pings detected yet. Waiting for first ping...`
+      return `Variation detection not started yet. Waiting for ping ${variationPingStart}...`
     }
   });
   self.showPingOnPrinter = ko.observable(true);
@@ -250,6 +252,13 @@ function OmegaViewModel(parameters) {
     }
     self.ajaxRequest(payload);
   });
+  self.variationPingStart.subscribe(function () {
+    const payload = {
+      command: "changeVariationPingStart",
+      value: self.variationPingStart()
+    }
+    self.ajaxRequest(payload);
+  });
   self.showPingOnPrinter.subscribe(function () {
     const payload = {
       command: "changeShowPingOnPrinter",
@@ -305,6 +314,9 @@ function OmegaViewModel(parameters) {
         break;
       case "variationPct":
         self.variationPct(data);
+        break;
+      case "variationPingStart":
+        self.variationPingStart(data);
         break;
       case "showPingOnPrinter":
         self.showPingOnPrinter(data);

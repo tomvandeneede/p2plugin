@@ -48,6 +48,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     feedRateSlowPct=75,
                     autoVariationCancelPing=False,
                     variationPct=8,
+                    variationPingStart=1,
                     showPingOnPrinter=False
                     )
 
@@ -77,6 +78,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             startPrint=[],
             changeAutoVariationCancelPing=["condition"],
             changeVariationPct=["value"],
+            changeVariationPingStart=["value"],
             changeShowPingOnPrinter=["condition"],
             changeFeedRateControl=["condition"],
             changeFeedRateSlowed=["condition"],
@@ -115,6 +117,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 self.palette.changeAutoVariationCancelPing(payload["condition"])
             elif command == "changeVariationPct":
                 self.palette.changeVariationPct(payload["value"])
+            elif command == "changeVariationPingStart":
+                self.palette.changeVariationPingStart(payload["value"])
             elif command == "changeShowPingOnPrinter":
                 self.palette.changeShowPingOnPrinter(payload["condition"])
             elif command == "changeFeedRateControl":
