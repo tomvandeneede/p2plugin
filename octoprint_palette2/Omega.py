@@ -299,82 +299,85 @@ class Omega():
                     line = line.decode().strip()
                     command = self.parseLine(line)
                     if command != None:
-                        if command["command"] != 99:
+                        number = command["number"]
+                        params = command["params"]
+                        total_params = len(params)
+                        if number != 99:
                             self._logger.info("Omega Read Thread: reading: %s" % line)
-                        if command["command"] == 20:
-                            if command["total_params"] > 0:
-                                if command["params"][0] == "D5":
+                        if number == 20:
+                            if total_params > 0:
+                                if params[0] == "D5":
                                     self.handleFirstTimePrint()
                                 else:
                                     self.handleP2RequestForMoreInfo(command)
-                        elif command["command"] == 34:
-                            if command["total_params"] == 1:
+                        elif number == 34:
+                            if total_params == 1:
                                 # if reject ping
-                                if command["params"][0] == "D0":
+                                if params[0] == "D0":
                                     self.handleRejectedPing()
-                            elif command["total_params"] > 2:
+                            elif total_params > 2:
                                 # if ping
-                                if command["params"][0] == "D1":
+                                if params[0] == "D1":
                                     self.handlePing(command)
                                 # else pong
-                                elif command["params"][0] == "D2":
+                                elif params[0] == "D2":
                                     self.handlePong(command)
-                        elif command["command"] == 40:
+                        elif number == 40:
                             self.handleResumeRequest()
-                        elif command["command"] == 50:
-                            if command["total_params"] > 0:
-                                firmware_version = command["params"][0].replace("D","")
+                        elif number == 50:
+                            if total_params > 0:
+                                firmware_version = params[0].replace("D","")
                                 if firmware_version >= "9.0.9":
                                     self.startHeartbeatThread()
                             else:
                                 self.sendAllMCFFilenamesToOmega()
-                        elif command["command"] == 53:
-                            if command["total_params"] > 1:
-                                if command["params"][0] == "D1":
+                        elif number == 53:
+                            if total_params > 1:
+                                if params[0] == "D1":
                                     self.handleStartPrintFromP2(command)
-                        elif command["command"] == 88:
-                            if command["total_params"] > 0:
+                        elif number == 88:
+                            if total_params > 0:
                                 self.handleErrorDetected(command)
-                        elif command["command"] == 97:
-                            if command["total_params"] > 0:
-                                if command["params"][0] == "U0":
-                                    if command["total_params"] > 1:
-                                        if command["params"][1] == "D0":
+                        elif number == 97:
+                            if total_params > 0:
+                                if params[0] == "U0":
+                                    if total_params > 1:
+                                        if params[1] == "D0":
                                             self.handleSpliceCompletion()
-                                        elif command["params"][1] == "D2":
+                                        elif params[1] == "D2":
                                             self.handlePrintCancelling()
-                                        elif command["params"][1] == "D3":
+                                        elif params[1] == "D3":
                                             self.handlePrintCancelled()
-                                elif command["params"][0] == "U25":
-                                    if command["total_params"] > 2:
-                                        if command["params"][1] == "D0":
+                                elif params[0] == "U25":
+                                    if total_params > 2:
+                                        if params[1] == "D0":
                                             self.handleSpliceStart(command)
                                             self.feedRateControlStart()
-                                        elif command["params"][1] == "D1":
+                                        elif params[1] == "D1":
                                             self.feedRateControlEnd()
-                                elif command["params"][0] == "U26":
-                                    if command["total_params"] > 1:
+                                elif params[0] == "U26":
+                                    if total_params > 1:
                                         self.handleFilamentUsed(command)
-                                elif command["params"][0] == "U39":
-                                    if command["total_params"] == 1:
+                                elif params[0] == "U39":
+                                    if total_params == 1:
                                         self.handleLoadingOffsetStart()
                                     # positive integer
-                                    elif "-" in command["params"][1]:
+                                    elif "-" in params[1]:
                                         self.handleLoadingOffsetExtrude(command)
                                     # negative integer or 0
-                                    elif "-" not in command["params"][1]:
+                                    elif "-" not in params[1]:
                                         self.handleLoadingOffsetCompletion(command)
-                                elif self.drivesInUse and command["params"][0] == self.drivesInUse[0]:
-                                    if command["total_params"] > 1 and command["params"][1] == "D0":
+                                elif self.drivesInUse and params[0] == self.drivesInUse[0]:
+                                    if total_params > 1 and params[1] == "D0":
                                         self.handleDrivesLoading()
-                                elif self.drivesInUse and command["params"][0] == self.drivesInUse[-1]:
-                                    if command["total_params"] > 1 and command["params"][1] == "D1":
+                                elif self.drivesInUse and params[0] == self.drivesInUse[-1]:
+                                    if total_params > 1 and params[1] == "D1":
                                         self.handleFilamentOutgoingTube()
-                        elif command["command"] == 100:
+                        elif number == 100:
                             self.handlePauseRequest()
-                        elif command["command"] == 102:
-                            if command["total_params"] > 0:
-                                if command["params"][0] == "D0":
+                        elif number == 102:
+                            if total_params > 0:
+                                if params[0] == "D0":
                                     self.handleSmartLoadRequest()
             except Exception as e:
                 # Something went wrong with the connection to Palette2
@@ -914,27 +917,27 @@ class Omega():
         # is the first character O?
         if line[0] == "O":
             tokens = [token.strip() for token in line.split(" ")]
-            # make command object
-            command = {
-                "command": tokens[0],
-                "total_params": len(tokens) - 1,
-                "params": tokens[1:]
-            }
-            # verify command validity
+            command_number = tokens[0]
+            command_params = tokens[1:]
+
+            # verify command number validity
             try:
-                command["command"] = int(command["command"][1:])
+                command_number = int(command_number[1:])
             except:
                 # command should be a number, otherwise invalid command
-                self._logger.info("%s is not a valid command: %s" % (command["command"], line))
+                self._logger.info("%s is not a valid number: %s" % (command_number, line))
                 return None
             # verify tokens' validity
-            if command["total_params"] > 0:
-                for param in command["params"]:
+            if len(command_params) > 0:
+                for param in command_params:
                     # params should start with D or U, otherwise invalid param
                     if param[0] != "D" and param[0] != "U":
                         self._logger.info("%s is not a valid parameter: %s" % (param, line))
                         return None
-            return command
+            return {
+                "number": command_number,
+                "params": command_params
+            }
         # otherwise, is this line the heartbeat response?
         elif line == "Connection Okay":
             self.heartbeat = True
