@@ -57,19 +57,22 @@ class Omega():
         # other Mosaic plugins for python 3 compatibility
         if self.checkIfMosaicHub():
             plugins_to_update = []
-            # TODO: change to 0
-            plugins_to_check = constants.MOSAIC_PYTHON_3_PLUGINS if self.isHubS else [constants.MOSAIC_PYTHON_3_PLUGINS[1]]
+            plugins_to_check = constants.MOSAIC_PYTHON_3_PLUGINS if self.isHubS else [constants.MOSAIC_PYTHON_3_PLUGINS[0]]
             for plugin in plugins_to_check:
                 if self._plugin_manager.get_plugin_info(plugin["identifier"]):
                     name = self._plugin_manager.get_plugin_info(plugin["identifier"]).name
                     version = self._plugin_manager.get_plugin_info(plugin["identifier"]).version
+                    homepage = self._plugin_manager.get_plugin_info(plugin["identifier"]).url
 
-                    if version < plugin["p3-compatible-version"]:
-                        plugins_to_update.append(plugin)
+                    if version < plugin["p3CompatibleVersion"]:
+                        plugin_data = {
+                            "homepage": homepage,
+                            "name": name,
+                        }
+                        plugins_to_update.append(plugin_data)
 
-            self._logger.info("Plugins to update: %s" % plugins_to_update)
             if plugins_to_update:
-                self._logger.info("Show message on octoprint page for user")
+                self.updateUI({"command": "python3", "data": plugins_to_update})
 
     def checkLedScriptFlag(self):
         led_script_flag = "/home/pi/.mosaicdata/led_flag"

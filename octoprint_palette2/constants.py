@@ -14,13 +14,11 @@ PLUGIN_UPDATE_URL = "https://gitlab.com/mosaic-mfg/palette-2-plugin/-/archive/ma
 MOSAIC_PYTHON_3_PLUGINS = [
     {
         "identifier": "netconnectd",
-        "p3-compatible-version": "1.1.0",
-        "download-url": "https://gitlab.com/mosaic-mfg/OctoPrint-Netconnectd/-/archive/master/OctoPrint-Netconnectd-master.zip"
+        "p3CompatibleVersion": "1.1.0",
     },
     {
         "identifier": "webcampackage",
-        "p3-compatible-version": "1.1.2",
-        "download-url": "https://gitlab.com/mosaic-mfg/webcam-package/-/archive/master/webcam-package-master.zip"
+        "p3CompatibleVersion": "1.1.2",
     },
 ]
 

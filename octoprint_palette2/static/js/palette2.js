@@ -727,6 +727,8 @@ function OmegaViewModel(parameters) {
         self.showAlert(message.data);
       } else if (message.command === "advanced") {
         self.handleAdvancedOptions(message.subCommand, message.data);
+      } else if (message.command === "python3") {
+        Palette2Alerts.python3CompatibilityAlert(message.data);
       }
     }
   };
