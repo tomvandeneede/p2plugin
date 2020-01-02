@@ -5,6 +5,11 @@ HTTP = {
     "FAILURE": 500,
 }
 
+# SOFTWARE UPDATE
+GITLAB_PROJECT_ID = 3597555
+LATEST_VERSION_URL = "https://gitlab.com/api/v4/projects/%s/releases" % GITLAB_PROJECT_ID
+PLUGIN_UPDATE_URL = "https://gitlab.com/mosaic-mfg/palette-2-plugin/-/archive/master/palette-2-plugin-master.zip"
+
 # CONNECT TO P2 ERROR MESSAGES
 P2_CONNECTION = {
     "ALREADY_CONNECTED": "P2 Plugin already connected to P2",
