@@ -6,6 +6,7 @@ function OmegaViewModel(parameters) {
   self.control = parameters[1];
   self.printerState = parameters[2];
   self.files = parameters[3];
+  self.pluginManager = parameters[4];
 
   /* GLOBAL VARIABLES */
   self.notificationId = "";
@@ -728,7 +729,37 @@ function OmegaViewModel(parameters) {
       } else if (message.command === "advanced") {
         self.handleAdvancedOptions(message.subCommand, message.data);
       } else if (message.command === "python3") {
-        Palette2Alerts.python3CompatibilityAlert(message.data);
+        Palette2Alerts.python3CompatibilityAlert(message.data).then(result => {
+          if (result.hasOwnProperty("value")) {
+            const plugins = message.data;
+            // initialize some global variables to keep track of update progress
+            self.python3Update = true;
+            self.pluginsUpdated = 0;
+            self.pluginsToUpdateCount = plugins.length;
+
+            plugins.forEach(plugin => {
+              self.pluginManager.installPlugin(plugin.url);
+            });
+          }
+        });
+      }
+    } else if (pluginIdent === "pluginmanager") {
+      if (self.python3Update) {
+        // hacky way to give user visual feedback that more than
+        // one plugin is being installed at once via the plugin manager view model
+        // this is done because the plugin manager view model is only designed to install
+        // 1 plugin at a time
+        if (message.type === "result") {
+          self.pluginsUpdated++;
+          if (self.pluginsUpdated === self.pluginsToUpdateCount) {
+            self.python3Update = false;
+            self.pluginManager.working(false); // set it to false just to be safe
+          }
+        } else if (message.type === "loglines") {
+          if (self.pluginsUpdated < self.pluginsToUpdateCount) {
+            self.pluginManager.working(true);
+          }
+        }
       }
     }
   };
@@ -742,7 +773,7 @@ $(function () {
   OCTOPRINT_VIEWMODELS.push({
     // This is the constructor to call for instantiating the plugin
     construct: OmegaViewModel,
-    dependencies: ["settingsViewModel", "controlViewModel", "printerStateViewModel", "filesViewModel"],
+    dependencies: ["settingsViewModel", "controlViewModel", "printerStateViewModel", "filesViewModel", "pluginManagerViewModel"],
     elements: ["#tab_plugin_palette2"]
   }); // This is a list of dependencies to inject into the plugin. The order will correspond to the "parameters" arguments above // Finally, this is the list of selectors for all elements we want this view model to be bound to.
 });

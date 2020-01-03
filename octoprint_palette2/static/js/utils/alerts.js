@@ -142,19 +142,19 @@ const Palette2Alerts = {
   python3CompatibilityAlert: (pluginsToUpdate) => {
     let pluginsToUpdateText = "";
     pluginsToUpdate.forEach(plugin => {
-      const { name, homepage } = plugin;
-      pluginsToUpdateText += `<li style="margin-bottom: 5px"><a target="_blank" href=${homepage}>${name}</a></li>`;
+      pluginsToUpdateText += `<li style="margin-bottom: 5px">${plugin.name}</li>`;
     });
     return swal({
       title: "Python 3 Compatibility",
       html: `We detected that you are currently using other Mosaic plugins that will unfortunately not work as intended when OctoPrint transitions to Python 3.
-       Please manually update the following plugins to the latest version:
+       Please update the following plugins to their latest version:
        <br>
        <br>
        <ul>${pluginsToUpdateText}</ul>
        <br>
        Please refer to this <a target="_blank" href="http://mm3d.co/python3-update">article</a> for more information.`,
-      type: "info"
+      type: "info",
+      confirmButtonText: "Update Now"
     });
   },
 };

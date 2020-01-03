@@ -15,10 +15,12 @@ MOSAIC_PYTHON_3_PLUGINS = [
     {
         "identifier": "netconnectd",
         "p3CompatibleVersion": "1.1.0",
+        "url": "https://gitlab.com/mosaic-mfg/OctoPrint-Netconnectd/-/archive/master/OctoPrint-Netconnectd-master.zip"
     },
     {
         "identifier": "webcampackage",
         "p3CompatibleVersion": "1.1.2",
+        "url": "https://gitlab.com/mosaic-mfg/webcam-package/-/archive/master/webcam-package-master.zip"
     },
 ]
 

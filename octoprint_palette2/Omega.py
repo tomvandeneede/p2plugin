@@ -62,12 +62,11 @@ class Omega():
                 if self._plugin_manager.get_plugin_info(plugin["identifier"]):
                     name = self._plugin_manager.get_plugin_info(plugin["identifier"]).name
                     version = self._plugin_manager.get_plugin_info(plugin["identifier"]).version
-                    homepage = self._plugin_manager.get_plugin_info(plugin["identifier"]).url
 
-                    if version < plugin["p3CompatibleVersion"]:
+                    if version <= plugin["p3CompatibleVersion"]:
                         plugin_data = {
-                            "homepage": homepage,
                             "name": name,
+                            "url": plugin["url"],
                         }
                         plugins_to_update.append(plugin_data)
 
