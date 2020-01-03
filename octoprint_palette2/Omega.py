@@ -63,7 +63,7 @@ class Omega():
                     name = self._plugin_manager.get_plugin_info(plugin["identifier"]).name
                     version = self._plugin_manager.get_plugin_info(plugin["identifier"]).version
 
-                    if version <= plugin["p3CompatibleVersion"]:
+                    if version < plugin["p3CompatibleVersion"]:
                         plugin_data = {
                             "name": name,
                             "url": plugin["url"],
