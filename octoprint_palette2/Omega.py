@@ -328,27 +328,76 @@ class Omega():
                         total_params = len(params)
                         if number != 99:
                             self._logger.info("Omega Read Thread: reading: %s" % line)
-                        if number == 20:
-                            if total_params > 0:
-                                if params[0] == "D5":
-                                    self.handleFirstTimePrint()
-                                else:
-                                    self.handleP2RequestForMoreInfo(command)
-                        elif number == 34:
-                            if total_params == 1:
-                                # if reject ping
-                                if params[0] == "D0":
-                                    self.handleRejectedPing()
-                            elif total_params > 2:
-                                # if ping
-                                if params[0] == "D1":
-                                    self.handlePing(command)
-                                # else pong
-                                elif params[0] == "D2":
-                                    self.handlePong(command)
-                        elif number == 40:
-                            self.handleResumeRequest()
-                        elif number == 50:
+                        # only respond to these commands if a
+                        # connected mode print (.mcf.gcode) is currently happening
+                        if self.isConnectedMode:
+                            if number == 20:
+                                if total_params > 0:
+                                    if params[0] == "D5":
+                                        self.handleFirstTimePrint()
+                                    else:
+                                        self.handleP2RequestForMoreInfo(command)
+                            elif number == 34:
+                                if total_params == 1:
+                                    # if reject ping
+                                    if params[0] == "D0":
+                                        self.handleRejectedPing()
+                                elif total_params > 2:
+                                    # if ping
+                                    if params[0] == "D1":
+                                        self.handlePing(command)
+                                    # else pong
+                                    elif params[0] == "D2":
+                                        self.handlePong(command)
+                            elif number == 40:
+                                self.handleResumeRequest()
+                            elif number == 88:
+                                if total_params > 0:
+                                    self.handleErrorDetected(command)
+                            elif number == 97:
+                                if total_params > 0:
+                                    if params[0] == "U0":
+                                        if total_params > 1:
+                                            if params[1] == "D0":
+                                                self.handleSpliceCompletion()
+                                            elif params[1] == "D2":
+                                                self.handlePrintCancelling()
+                                            elif params[1] == "D3":
+                                                self.handlePrintCancelled()
+                                    elif params[0] == "U25":
+                                        if total_params > 2:
+                                            if params[1] == "D0":
+                                                self.handleSpliceStart(command)
+                                                self.feedRateControlStart()
+                                            elif params[1] == "D1":
+                                                self.feedRateControlEnd()
+                                    elif params[0] == "U26":
+                                        if total_params > 1:
+                                            self.handleFilamentUsed(command)
+                                    elif params[0] == "U39":
+                                        if total_params == 1:
+                                            self.handleLoadingOffsetStart()
+                                        # positive integer
+                                        elif "-" in params[1]:
+                                            self.handleLoadingOffsetExtrude(command)
+                                        # negative integer or 0
+                                        elif "-" not in params[1]:
+                                            self.handleLoadingOffsetCompletion(command)
+                                    elif self.drivesInUse and params[0] == self.drivesInUse[0]:
+                                        if total_params > 1 and params[1] == "D0":
+                                            self.handleDrivesLoading()
+                                    elif self.drivesInUse and params[0] == self.drivesInUse[-1]:
+                                        if total_params > 1 and params[1] == "D1":
+                                            self.handleFilamentOutgoingTube()
+                            elif number == 100:
+                                self.handlePauseRequest()
+                            elif number == 102:
+                                if total_params > 0:
+                                    if params[0] == "D0":
+                                        self.handleSmartLoadRequest()
+                        # always respond to these commands
+                        # even if a connected mode print is not currently happening
+                        if number == 50:
                             if total_params > 0:
                                 firmware_version = params[0].replace("D","")
                                 if firmware_version >= "9.0.9":
@@ -359,50 +408,6 @@ class Omega():
                             if total_params > 1:
                                 if params[0] == "D1":
                                     self.handleStartPrintFromP2(command)
-                        elif number == 88:
-                            if total_params > 0:
-                                self.handleErrorDetected(command)
-                        elif number == 97:
-                            if total_params > 0:
-                                if params[0] == "U0":
-                                    if total_params > 1:
-                                        if params[1] == "D0":
-                                            self.handleSpliceCompletion()
-                                        elif params[1] == "D2":
-                                            self.handlePrintCancelling()
-                                        elif params[1] == "D3":
-                                            self.handlePrintCancelled()
-                                elif params[0] == "U25":
-                                    if total_params > 2:
-                                        if params[1] == "D0":
-                                            self.handleSpliceStart(command)
-                                            self.feedRateControlStart()
-                                        elif params[1] == "D1":
-                                            self.feedRateControlEnd()
-                                elif params[0] == "U26":
-                                    if total_params > 1:
-                                        self.handleFilamentUsed(command)
-                                elif params[0] == "U39":
-                                    if total_params == 1:
-                                        self.handleLoadingOffsetStart()
-                                    # positive integer
-                                    elif "-" in params[1]:
-                                        self.handleLoadingOffsetExtrude(command)
-                                    # negative integer or 0
-                                    elif "-" not in params[1]:
-                                        self.handleLoadingOffsetCompletion(command)
-                                elif self.drivesInUse and params[0] == self.drivesInUse[0]:
-                                    if total_params > 1 and params[1] == "D0":
-                                        self.handleDrivesLoading()
-                                elif self.drivesInUse and params[0] == self.drivesInUse[-1]:
-                                    if total_params > 1 and params[1] == "D1":
-                                        self.handleFilamentOutgoingTube()
-                        elif number == 100:
-                            self.handlePauseRequest()
-                        elif number == 102:
-                            if total_params > 0:
-                                if params[0] == "D0":
-                                    self.handleSmartLoadRequest()
             except Exception as e:
                 # Something went wrong with the connection to Palette2
                 self._logger.info("Palette 2 Read Thread error")
@@ -663,6 +668,7 @@ class Omega():
 
         self.autoLoadThread = None
         self.isSplicing = False
+        self.isConnectedMode = False
 
     def resetPrintValues(self):
         self._logger.info("Resetting all print values")
@@ -701,6 +707,7 @@ class Omega():
 
         self.missedPings = 0
         self.isSplicing = False
+        self.isConnectedMode = True
         self.advanced_reset_print_values()
 
     def resetOmega(self):
@@ -1399,6 +1406,7 @@ class Omega():
         self.updateUI({"command": "alert", "data": "cancelled"})
         self.cancelFromHub = False
         self.cancelFromP2 = False
+        self.palette.isConnectedMode = False
 
     def handleSpliceStart(self, command):
         try:
