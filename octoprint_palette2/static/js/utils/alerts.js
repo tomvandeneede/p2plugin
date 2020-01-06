@@ -146,7 +146,7 @@ const Palette2Alerts = {
     });
     return swal({
       title: "Python 3 Compatibility",
-      html: `We detected that you are currently using other Mosaic plugins that will unfortunately not work as intended when OctoPrint transitions to Python 3.
+      html: `We detected that you are currently using other Mosaic helpers plugins that must be updated to be compatible with future versions of OctoPrint.
        Please update the following plugins to their latest version:
        <br>
        <br>
