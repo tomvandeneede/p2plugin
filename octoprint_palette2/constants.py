@@ -10,6 +10,23 @@ GITLAB_PROJECT_ID = 3597555
 LATEST_VERSION_URL = "https://gitlab.com/api/v4/projects/%s/releases" % GITLAB_PROJECT_ID
 PLUGIN_UPDATE_URL = "https://gitlab.com/mosaic-mfg/palette-2-plugin/-/archive/master/palette-2-plugin-master.zip"
 
+# PYTHON 3 COMPATIBILITY MOSAIC PLUGINS
+MOSAIC_PYTHON_3_PLUGINS = [
+    {
+        "identifier": "netconnectd",
+        "p3CompatibleVersion": "1.1.0",
+        "url": "https://gitlab.com/mosaic-mfg/OctoPrint-Netconnectd/-/archive/master/OctoPrint-Netconnectd-master.zip"
+    },
+    {
+        "identifier": "webcampackage",
+        "p3CompatibleVersion": "1.1.2",
+        "url": "https://gitlab.com/mosaic-mfg/webcam-package/-/archive/master/webcam-package-master.zip"
+    },
+]
+
+# MOSAIC DATA FILES
+TURQUOISE_PATH = "/home/pi/.mosaicdata/turquoise/"
+
 # CONNECT TO P2 ERROR MESSAGES
 P2_CONNECTION = {
     "ALREADY_CONNECTED": "P2 Plugin already connected to P2",

@@ -49,6 +49,30 @@ class Omega():
         if self._settings.get(["autoconnect"]):
             self.startConnectionThread()
 
+    def checkIfMosaicHub(self):
+        return os.path.isdir(constants.TURQUOISE_PATH)
+
+    def checkMosaicPluginsCompatibility(self):
+        # this function will warn the user if they need to manually update their
+        # other Mosaic plugins for python 3 compatibility
+        if self.checkIfMosaicHub():
+            plugins_to_update = []
+            plugins_to_check = constants.MOSAIC_PYTHON_3_PLUGINS if self.isHubS else [constants.MOSAIC_PYTHON_3_PLUGINS[0]]
+            for plugin in plugins_to_check:
+                if self._plugin_manager.get_plugin_info(plugin["identifier"]):
+                    name = self._plugin_manager.get_plugin_info(plugin["identifier"]).name
+                    version = self._plugin_manager.get_plugin_info(plugin["identifier"]).version
+
+                    if version < plugin["p3CompatibleVersion"]:
+                        plugin_data = {
+                            "name": name,
+                            "url": plugin["url"],
+                        }
+                        plugins_to_update.append(plugin_data)
+
+            if plugins_to_update:
+                self.updateUI({"command": "python3", "data": plugins_to_update})
+
     def checkLedScriptFlag(self):
         led_script_flag = "/home/pi/.mosaicdata/led_flag"
         return os.path.isfile(led_script_flag)
@@ -874,7 +898,7 @@ class Omega():
 
         # Hub or DIY
         output += "\n=== TYPE ===\n"
-        if os.path.isdir("/home/pi/.mosaicdata/turquoise/"):
+        if self.checkIfMosaicHub():
             output += "CANVAS HUB\n"
         else:
             output += "DIY HUB\n"

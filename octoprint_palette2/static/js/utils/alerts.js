@@ -139,4 +139,22 @@ const Palette2Alerts = {
       type: "error"
     });
   },
+  python3CompatibilityAlert: (pluginsToUpdate) => {
+    let pluginsToUpdateText = "";
+    pluginsToUpdate.forEach(plugin => {
+      pluginsToUpdateText += `<li style="margin-bottom: 5px">${plugin.name}</li>`;
+    });
+    return swal({
+      title: "Python 3 Compatibility",
+      html: `We detected that you are currently using other Mosaic helpers plugins that must be updated to be compatible with future versions of OctoPrint.
+       Please update the following plugins to their latest version:
+       <br>
+       <br>
+       <ul>${pluginsToUpdateText}</ul>
+       <br>
+       Please refer to this <a target="_blank" href="http://mm3d.co/python3-update">article</a> for more information.`,
+      type: "info",
+      confirmButtonText: "Update Now"
+    });
+  },
 };

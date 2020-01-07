@@ -140,6 +140,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
         try:
             if "ClientOpened" in event:
                 self.palette.updateUIAll()
+                self.palette.checkMosaicPluginsCompatibility()
             elif "PrintPaused" in event:
                 if ".mcf.gcode" in payload["name"]:
                     self.palette.printPaused = True
