@@ -1406,7 +1406,7 @@ class Omega():
         self.updateUI({"command": "alert", "data": "cancelled"})
         self.cancelFromHub = False
         self.cancelFromP2 = False
-        self.palette.isConnectedMode = False
+        self.isConnectedMode = False
 
     def handleSpliceStart(self, command):
         try:
