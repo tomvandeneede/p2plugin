@@ -368,9 +368,6 @@ class Omega():
                                         if total_params > 2:
                                             if params[1] == "D0":
                                                 self.handleSpliceStart(command)
-                                                self.feedRateControlStart()
-                                            elif params[1] == "D1":
-                                                self.feedRateControlEnd()
                                     elif params[0] == "U26":
                                         if total_params > 1:
                                             self.handleFilamentUsed(command)
@@ -408,6 +405,14 @@ class Omega():
                             if total_params > 1:
                                 if params[0] == "D1":
                                     self.handleStartPrintFromP2(command)
+                        elif number == 97:
+                                if total_params > 0:
+                                    if params[0] == "U25":
+                                        if total_params > 2:
+                                            if params[1] == "D0":
+                                                self.feedRateControlStart()
+                                            elif params[1] == "D1":
+                                                self.feedRateControlEnd()
             except Exception as e:
                 # Something went wrong with the connection to Palette2
                 self._logger.info("Palette 2 Read Thread error")
@@ -983,40 +988,44 @@ class Omega():
     def feedRateControlStart(self):
         self._logger.info('SPLICE START')
         self.isSplicing = True
-        if self.feedRateControl and self.actualPrintStarted:
-            advanced_status = 'Splice (%s) starting: speed -> SLOW (%s%%)' % (self.currentSplice, self.feedRateSlowPct)
-            self.updateUI({"command": "advanced", "subCommand": "advancedStatus", "data": advanced_status})
-            # Splice Start
-            if self.feedRateSlowed:
-                # Feedrate already slowed, set it again to be safe.
-                try:
-                    self._logger.info("ADVANCED: Feed-rate SLOW - ACTIVE* (%s)" % self.feedRateSlowPct)
-                    self._printer.commands('M220 S%s' % self.feedRateSlowPct)
-                except ValueError:
-                    self._logger.info('ADVANCED: Unable to Update Feed-Rate -> SLOW :: ' + str(ValueError))
-            else:
-                self._logger.info('ADVANCED: Feed-rate SLOW - ACTIVE (%s)' % self.feedRateSlowPct)
-                try:
-                    self._printer.commands('M220 S%s B' % self.feedRateSlowPct)
-                    self.feedRateSlowed = True
-                except ValueError:
-                    self._logger.info('ADVANCED: Unable to Update Feed-Rate -> SLOW :: ' + str(ValueError))
-            self.updateUI({"command": "advanced", "subCommand": "feedRateSlowed", "data": self.feedRateSlowed}, True)
+        if self.feedRateControl:
+            if (self.isConnectedMode and self.actualPrintStarted) or not self.isConnectedMode:
+                advanced_status = 'Splice starting: speed -> SLOW (%s%%)' % self.feedRateSlowPct
+                if self.isConnectedMode and self.actualPrintStarted:
+                    advanced_status = 'Splice (%s) starting: speed -> SLOW (%s%%)' % (self.currentSplice, self.feedRateSlowPct)
+                self.updateUI({"command": "advanced", "subCommand": "advancedStatus", "data": advanced_status})
+                if self.feedRateSlowed:
+                    # Feedrate already slowed, set it again to be safe.
+                    try:
+                        self._logger.info("ADVANCED: Feed-rate SLOW - ACTIVE* (%s)" % self.feedRateSlowPct)
+                        self._printer.commands('M220 S%s' % self.feedRateSlowPct)
+                    except ValueError:
+                        self._logger.info('ADVANCED: Unable to Update Feed-Rate -> SLOW :: ' + str(ValueError))
+                else:
+                    self._logger.info('ADVANCED: Feed-rate SLOW - ACTIVE (%s)' % self.feedRateSlowPct)
+                    try:
+                        self._printer.commands('M220 S%s B' % self.feedRateSlowPct)
+                        self.feedRateSlowed = True
+                    except ValueError:
+                        self._logger.info('ADVANCED: Unable to Update Feed-Rate -> SLOW :: ' + str(ValueError))
+                self.updateUI({"command": "advanced", "subCommand": "feedRateSlowed", "data": self.feedRateSlowed}, True)
 
 
     def feedRateControlEnd(self):
         self._logger.info('SPLICE END')
         self.isSplicing = False
-        if self.feedRateControl and self.actualPrintStarted:
-            self._logger.info('ADVANCED: Feed-rate NORMAL - ACTIVE (%s)' % self.feedRateNormalPct)
-            advanced_status = 'Splice (%s) finished: speed -> NORMAL (%s%%)' % (self.currentSplice, self.feedRateNormalPct)
-            self.updateUI({"command": "advanced", "subCommand": "advancedStatus", "data": advanced_status})
-            try:
-                self._printer.commands('M220 S%s' % self.feedRateNormalPct)
-                self.feedRateSlowed = False
-            except ValueError:
-                self._logger.info('ADVANCED: Unable to Update Feed-Rate -> NORMAL :: ' + str(ValueError))
-            self.updateUI({"command": "advanced", "subCommand": "feedRateSlowed", "data": self.feedRateSlowed}, True)
+        if self.feedRateControl:
+            if (self.isConnectedMode and self.actualPrintStarted) or not self.isConnectedMode:
+                advanced_status = 'Splice finished: speed -> NORMAL (%s%%)' % self.feedRateNormalPct
+                if self.isConnectedMode and self.actualPrintStarted:
+                    advanced_status = 'Splice (%s) finished: speed -> NORMAL (%s%%)' % (self.currentSplice, self.feedRateNormalPct)
+                self.updateUI({"command": "advanced", "subCommand": "advancedStatus", "data": advanced_status})
+                try:
+                    self._printer.commands('M220 S%s' % self.feedRateNormalPct)
+                    self.feedRateSlowed = False
+                except ValueError:
+                    self._logger.info('ADVANCED: Unable to Update Feed-Rate -> NORMAL :: ' + str(ValueError))
+                self.updateUI({"command": "advanced", "subCommand": "feedRateSlowed", "data": self.feedRateSlowed}, True)
 
 
     def sendPingToPrinter(self, ping_number, ping_percent):
@@ -1103,7 +1112,7 @@ class Omega():
                     self._settings.save(force=True)
                     self._logger.info("ADVANCED: feedRateNormalPct -> '%s' '%s'" % (clean_value, self._settings.get(["feedRateNormalPct"])))
                     self.feedRateNormalPct = self._settings.get(["feedRateNormalPct"])
-                    if not self.actualPrintStarted:
+                    if self.isConnectedMode and not self.actualPrintStarted:
                         advanced_status = 'Normal feed rate set to %s%%. Awaiting start of print to apply...' % self.feedRateNormalPct
                     else:
                         if not self.feedRateSlowed:
@@ -1136,12 +1145,15 @@ class Omega():
                     self._settings.save(force=True)
                     self._logger.info("ADVANCED: feedRateSlowPct -> '%s' '%s'" % (clean_value, self._settings.get(["feedRateSlowPct"])))
                     self.feedRateSlowPct = self._settings.get(["feedRateSlowPct"])
-                    if not self.actualPrintStarted:
+                    if self.isConnectedMode and not self.actualPrintStarted:
                         advanced_status = 'Splicing feed rate set to %s%%. Awaiting start of print to apply...' % (self.feedRateSlowPct)
                     else:
                         if self.feedRateSlowed:
                             self._printer.commands('M220 S%s' % self.feedRateSlowPct)
-                            advanced_status = 'Currently splicing (%s): speed -> SLOW (%s%%)' % (self.currentSplice, self.feedRateSlowPct)
+                            if self.isConnectedMode:
+                                advanced_status = 'Currently splicing (%s): speed -> SLOW (%s%%)' % (self.currentSplice, self.feedRateSlowPct)
+                            else:
+                                advanced_status = 'Currently splicing: speed -> SLOW (%s%%)' % self.feedRateSlowPct
                         else:
                             advanced_status = 'Splicing feed rate set to %s%%. Awaiting next splice to apply...' % (self.feedRateSlowPct)
                 except Exception as e:
