@@ -48,6 +48,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     feedRateSlowPct=75,
                     autoVariationCancelPing=False,
                     variationPct=8,
+                    variationPingStart=1,
                     showPingOnPrinter=False
                     )
 
@@ -77,6 +78,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             startPrint=[],
             changeAutoVariationCancelPing=["condition"],
             changeVariationPct=["value"],
+            changeVariationPingStart=["value"],
             changeShowPingOnPrinter=["condition"],
             changeFeedRateControl=["condition"],
             changeFeedRateSlowed=["condition"],
@@ -87,7 +89,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
         )
 
     def on_api_command(self, command, payload):
-        self._logger.info("Got a command %s" % command)
+        self._logger.info("Got a command: '%s'" % command)
         try:
             data = None
             if command == "connectOmega":
@@ -115,6 +117,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 self.palette.changeAutoVariationCancelPing(payload["condition"])
             elif command == "changeVariationPct":
                 self.palette.changeVariationPct(payload["value"])
+            elif command == "changeVariationPingStart":
+                self.palette.changeVariationPingStart(payload["value"])
             elif command == "changeShowPingOnPrinter":
                 self.palette.changeShowPingOnPrinter(payload["condition"])
             elif command == "changeFeedRateControl":
@@ -136,6 +140,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
         try:
             if "ClientOpened" in event:
                 self.palette.updateUIAll()
+                self.palette.checkMosaicPluginsCompatibility()
             elif "PrintPaused" in event:
                 if ".mcf.gcode" in payload["name"]:
                     self.palette.printPaused = True
@@ -148,6 +153,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     self.palette.updateUI({"command": "printPaused", "data": self.palette.printPaused})
             elif "PrintDone" in event:
                 if ".mcf.gcode" in payload["name"]:
+                    self.palette.isConnectedMode = False
                     self.palette.actualPrintStarted = False
                     self.palette.updateUI({"command": "actualPrintStarted", "data": self.palette.actualPrintStarted})
             elif "PrintFailed" in event:
@@ -215,9 +221,9 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
         )
 
     def get_latest(self, target, check, full_data=False, online=True):
-        resp = requests.get("http://emerald.mosaicmanufacturing.com/canvas-hub-palette/latest")
+        resp = requests.get(constants.LATEST_VERSION_URL)
         version_data = resp.json()
-        version = version_data["versions"][0]["version"]
+        version = version_data[0]["name"]
         current_version = check.get("current")
         information = dict(
             local=dict(
@@ -249,13 +255,14 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 command="/home/pi/test-version.sh",
 
                 # update method: pip
-                pip="https://gitlab.com/mosaic-mfg/palette-2-plugin/-/archive/master/palette-2-plugin-master.zip"
+                pip=constants.PLUGIN_UPDATE_URL,
             )
         )
 
 
 __plugin_name__ = "Palette 2"
 __plugin_description__ = "A plugin to handle communication with Palette 2"
+__plugin_pythoncompat__ = ">=2.7,<4"
 
 
 def __plugin_load__():
