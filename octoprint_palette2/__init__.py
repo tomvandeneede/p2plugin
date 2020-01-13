@@ -153,6 +153,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     self.palette.updateUI({"command": "printPaused", "data": self.palette.printPaused})
             elif "PrintDone" in event:
                 if ".mcf.gcode" in payload["name"]:
+                    self.palette.isConnectedMode = False
                     self.palette.actualPrintStarted = False
                     self.palette.updateUI({"command": "actualPrintStarted", "data": self.palette.actualPrintStarted})
             elif "PrintFailed" in event:
