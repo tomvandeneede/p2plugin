@@ -852,6 +852,11 @@ class Omega():
         self._settings.save(force=True)
         self.updateUI({"command": "displaySetupAlerts", "data": self._settings.get(["palette2Alerts"])})
 
+    def changeAutoStartAfterLoad(self, condition):
+        self._settings.set(["autoStartAfterLoad"], condition, force=True)
+        self._settings.save(force=True)
+        self.updateUI({"command": "autoStartAfterLoad", "data": self._settings.get(["autoStartAfterLoad"])})
+
     def sendAllMCFFilenamesToOmega(self):
         self.getAllMCFFilenames()
         for file in self.allMCFFiles:
@@ -1471,9 +1476,15 @@ class Omega():
                 if self.isAutoLoading:
                     while self.isAutoLoading:
                         time.sleep(0.01)
-                    self.updateUI({"command": "alert", "data": "startPrint"})
+                    self.handleStartPrintAfterLoad()
                 else:
-                    self.updateUI({"command": "alert", "data": "startPrint"})
+                    self.handleStartPrintAfterLoad()
+
+    def handleStartPrintAfterLoad(self):
+        if self._settings.get(["autoStartAfterLoad"]):
+            self.startPrintFromHub()
+        else:
+            self.updateUI({"command": "alert", "data": "startPrint"})
 
     def handleDrivesLoading(self):
         self.currentStatus = constants.STATUS["LOADING_DRIVES"]

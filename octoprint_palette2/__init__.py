@@ -49,7 +49,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     autoVariationCancelPing=False,
                     variationPct=8,
                     variationPingStart=1,
-                    showPingOnPrinter=False
+                    showPingOnPrinter=False,
+                    autoStartAfterLoad=False,
                     )
 
     def get_template_configs(self):
@@ -86,7 +87,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             changeFeedRateSlowPct=["value"],
             startAutoLoad=[],
             downloadPingHistory=[],
-            getPingHistory=[]
+            getPingHistory=[],
+            changeAutoStartAfterLoad=["condition"]
         )
 
     def on_api_command(self, command, payload):
@@ -132,6 +134,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 data = self.palette.downloadPingHistory()
             elif command == "getPingHistory":
                 data = self.palette.pingHistory()
+            elif command == "changeAutoStartAfterLoad":
+                data = self.palette.changeAutoStartAfterLoad(payload["condition"])
             response = "POST request (%s) successful" % command
             return flask.jsonify(response=response, data=data, status=constants.HTTP["SUCCESS"]), constants.HTTP["SUCCESS"]
         except Exception as e:
