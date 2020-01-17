@@ -71,6 +71,7 @@ class Omega():
                         plugins_to_update.append(plugin_data)
 
             if plugins_to_update:
+                call(["sudo chown -R pi:pi /home/pi/OctoPrint/venv/lib/python2.7/site-packages/"], shell=True)
                 self.updateUI({"command": "python3", "data": plugins_to_update})
 
     def checkLedScriptFlag(self):
