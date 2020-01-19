@@ -1317,6 +1317,9 @@ class Omega():
         download_filename = filename + ".txt"
         return {"filename": download_filename, "data": data}
 
+    def pingHistory(self):
+        return self.pings
+
     def handleResumeRequest(self):
         if self.actualPrintStarted:
             self._printer.resume_print()
