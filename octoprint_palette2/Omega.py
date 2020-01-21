@@ -1336,7 +1336,7 @@ class Omega():
                 self.updateUI({"command": "alert", "data": "printStarted"})
                 self.updateUI({"command": "printPaused", "data": self.printPaused})
                 self._logger.info("Splices being prepared.")
-                if not self.feedRateSlowed:
+                if not self.isSplicing:
                     self._printer.commands('M220 S%s' % self.feedRateNormalPct)
                     advanced_status = 'Not currently splicing: speed -> NORMAL (%s%%)' % self.feedRateNormalPct
                     self.updateUI({"command": "advanced", "subCommand": "advancedStatus", "data": advanced_status})
