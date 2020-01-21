@@ -1103,9 +1103,9 @@ class Omega():
             advanced_status = ""
             if clean_value == self.feedRateNormalPct:
                 self._logger.info("Normal Feed Rate Speed did not change. Do nothing")
-            elif clean_value > 150:
-                self._logger.info("Cannot set normal feed rate above 150%.")
-                advanced_status = 'Cannot set normal feed rate above 150%%. Keeping speed at (%s%%).' % self.feedRateNormalPct
+            elif clean_value > 200:
+                self._logger.info("Cannot set normal feed rate above 200%.")
+                advanced_status = 'Cannot set normal feed rate above 200%%. Keeping speed at (%s%%).' % self.feedRateNormalPct
                 self.updateUI({"command": "advanced", "subCommand": "feedRateNormalPct", "data": self._settings.get(["feedRateNormalPct"])})
             else:
                 try:
