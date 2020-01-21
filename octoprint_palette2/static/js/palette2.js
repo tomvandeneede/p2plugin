@@ -10,13 +10,17 @@ function OmegaViewModel(parameters) {
 
   /* GLOBAL VARIABLES */
   self.notificationId = "";
-  self.displaySetupAlerts = true;
   self.firstTime = false;
   self.actualPrintStarted = false;
 
   /* KNOCKOUT DATA-BINDINGS */
-  // Connection observables
+  // Plugin settings
   self.autoconnect = ko.observable(false);
+  self.displaySetupAlerts = ko.observable(true);
+  self.autoStartAfterLoad = ko.observable(false);
+  self.advancedOptions = ko.observable();
+
+  // Connection observables
   self.connected = ko.observable(false);
   self.connectionStateMsg = ko.computed(function () {
     if (self.connected()) {
@@ -101,7 +105,6 @@ function OmegaViewModel(parameters) {
   self.feedRateNormalPct = ko.observable(100);
   self.feedRateSlowPct = ko.observable(50);
   self.feedRateStatus = ko.observable("Awaiting Update...");
-  self.advancedOptions = ko.observable();
 
   // Side notification list observables
   self.autoLoad = ko.observable(false);
@@ -172,10 +175,19 @@ function OmegaViewModel(parameters) {
   };
 
   self.changeAlertSettings = condition => {
-    self.displaySetupAlerts = !condition;
     const payload = {
       command: "changeAlertSettings",
-      condition: self.displaySetupAlerts
+      condition: !condition
+    };
+    self.ajaxRequest(payload).then(() => {
+      self.settings.requestData();
+    });
+  };
+
+  self.changeAutoStartAfterLoad = condition => {
+    const payload = {
+      command: "changeAutoStartAfterLoad",
+      condition: condition
     };
     self.ajaxRequest(payload).then(() => {
       self.settings.requestData();
@@ -429,14 +441,14 @@ function OmegaViewModel(parameters) {
 
   self.showAlert = (command, condition) => {
     if (command === "temperature") {
-      if (self.displaySetupAlerts) {
+      if (self.displaySetupAlerts()) {
         const base_url = window.location.origin;
         window.location.href = `${base_url}/#temp`;
         Palette2UI.temperatureHighlight();
         Palette2Alerts.preheatAlert();
       }
     } else if (command === "extruder") {
-      if (self.displaySetupAlerts) {
+      if (self.displaySetupAlerts()) {
         const base_url = window.location.origin;
         window.location.href = `${base_url}/#control`;
         Palette2UI.extrusionHighlight();
@@ -452,13 +464,14 @@ function OmegaViewModel(parameters) {
       self.removeNotification();
       Palette2Alerts.printCancelledAlert();
     } else if (command === "startPrint") {
-      if (self.displaySetupAlerts) {
-        $("body").on("click", ".setup-checkbox input", event => {
-          self.changeAlertSettings(event.target.checked);
-        });
-      }
-      Palette2Alerts.readyToStartAlert(self.displaySetupAlerts).then(result => {
-        if (result.hasOwnProperty("value")) {
+      $("body").on("click", "#swal2-p2-checkbox1", event => {
+        self.changeAlertSettings(event.target.checked);
+      });
+      $("body").on("click", "#swal2-p2-checkbox2", event => {
+        self.changeAutoStartAfterLoad(event.target.checked);
+      });
+      Palette2Alerts.readyToStartAlert(self.displaySetupAlerts(), self.autoStartAfterLoad()).then(result => {
+        if (!self.autoStartAfterLoad() && result.hasOwnProperty("value")) {
           self.startPrintFromHub();
         }
       });
@@ -683,7 +696,9 @@ function OmegaViewModel(parameters) {
       } else if (message.command === "currentSplice") {
         self.currentSplice(message.data);
       } else if (message.command === "displaySetupAlerts") {
-        self.displaySetupAlerts = message.data;
+        self.displaySetupAlerts(message.data);
+      } else if (message.command === "autoStartAfterLoad") {
+        self.autoStartAfterLoad(message.data);
       } else if (message.command === "totalSplices") {
         self.nSplices(message.data);
       } else if (message.command === "p2Connection") {

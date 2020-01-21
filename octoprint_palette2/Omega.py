@@ -543,8 +543,6 @@ class Omega():
         self.updateUI({"command": "pongs", "data": self.pongs}, True)
         self.updateUI({"command": "actualPrintStarted", "data": self.actualPrintStarted}, True)
         self.updateUI({"command": "palette2SetupStarted", "data": self.palette2SetupStarted}, True)
-        self.updateUI({"command": "displaySetupAlerts", "data": self._settings.get(["palette2Alerts"])}, True)
-        self.updateUI({"command": "autoConnect", "data": self._settings.get(["autoconnect"])}, True)
         self.updateUI({"command": "firstTime", "data": self.firstTime}, True)
         self.updateUI({"command": "currentStatus", "data": self.currentStatus}, True)
         self.updateUI({"command": "totalSplices", "data": self.msfNS}, True)
@@ -553,10 +551,9 @@ class Omega():
         self.updateUI({"command": "filamentLength", "data": self.filamentLength}, True)
         self.updateUI({"command": "amountLeftToExtrude", "data": self.amountLeftToExtrude}, True)
         self.updateUI({"command": "printPaused", "data": self._printer.is_paused()}, True)
-        self.updateUI({"command": "advanced", "subCommand": "displayAdvancedOptions", "data": self._settings.get(["advancedOptions"])}, True)
         self.updateUI({"command": "ports", "data": self.getAllPorts()}, True)
-        self.advanced_updateUI()
-
+        self.settingsUpdateUI()
+        self.advancedUpdateUI()
 
     def updateUI(self, data, log=None):
         if not log:
@@ -565,6 +562,12 @@ class Omega():
             else:
                 self._logger.info("Updating UI: %s" % data["command"])
         self._plugin_manager.send_plugin_message(self._identifier, data)
+
+    def settingsUpdateUI(self):
+        self.updateUI({"command": "displaySetupAlerts", "data": self._settings.get(["palette2Alerts"])}, True)
+        self.updateUI({"command": "autoStartAfterLoad", "data": self._settings.get(["autoStartAfterLoad"])}, True)
+        self.updateUI({"command": "autoConnect", "data": self._settings.get(["autoconnect"])}, True)
+        self.updateUI({"command": "advanced", "subCommand": "displayAdvancedOptions", "data": self._settings.get(["advancedOptions"])}, True)
 
     def sendNextData(self, dataNum):
         if dataNum == 0:
@@ -1061,7 +1064,7 @@ class Omega():
         self.feedRateSlowed = False
         self.isAutoLoading = False
 
-    def advanced_updateUI(self):
+    def advancedUpdateUI(self):
         self._logger.info("ADVANCED UPDATE UI")
         try:
             self.updateUI({"command": "advanced", "subCommand": "autoVariationCancelPing", "data": self._settings.get(["autoVariationCancelPing"])}, True)
@@ -1207,7 +1210,7 @@ class Omega():
             self._logger.info("Not positive integer")
             self.updateUI({"command": "advanced", "subCommand": "variationPingStart", "data": self._settings.get(["variationPingStart"])})
 
-    def advanced_update_variables(self):
+    def advancedUpdateVariables(self):
         self.autoVariationCancelPing = self._settings.get(["autoVariationCancelPing"])
         self.showPingOnPrinter = self._settings.get(["showPingOnPrinter"])
         self.feedRateControl = self._settings.get(["feedRateControl"])
@@ -1215,7 +1218,7 @@ class Omega():
         self.feedRateSlowPct = self._settings.get(["feedRateSlowPct"])
         self.variationPct = self._settings.get(["variationPct"])
         self.variationPingStart = self._settings.get(["variationPingStart"])
-        self.advanced_updateUI()
+        self.advancedUpdateUI()
 
     def isPositiveInteger(self, value):
         try:

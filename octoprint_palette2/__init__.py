@@ -182,17 +182,12 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             elif "FileRemoved" in event:
                 self.palette.getAllMCFFilenames()
             elif "SettingsUpdated" in event:
-                self._logger.info("Auto-reconnect: %s" % str(self._settings.get(["autoconnect"])))
-                self._logger.info("Display Alerts: %s" % str(self._settings.get(["palette2Alerts"])))
-                self._logger.info("Display Advanced Options: %s" % str(self._settings.get(["advancedOptions"])))
-                self.palette.updateUI({"command": "autoConnect", "data": self._settings.get(["autoconnect"])})
-                self.palette.updateUI({"command": "displaySetupAlerts", "data": self._settings.get(["palette2Alerts"])})
-                self.palette.updateUI({"command": "advanced", "subCommand": "displayAdvancedOptions", "data": self._settings.get(["advancedOptions"])})
+                self.palette.settingsUpdateUI()
                 if not self._settings.get(["advancedOptions"]):
                     self.palette.changeAutoVariationCancelPing(False)
                     self.palette.changeShowPingOnPrinter(False)
                     self.palette.changeFeedRateControl(False)
-                self.palette.advanced_update_variables()
+                self.palette.advancedUpdateVariables()
                 if self._settings.get(["autoconnect"]):
                     self.palette.startConnectionThread()
                 else:
