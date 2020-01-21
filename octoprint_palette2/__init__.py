@@ -85,7 +85,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             changeFeedRateNormalPct=["value"],
             changeFeedRateSlowPct=["value"],
             startAutoLoad=[],
-            downloadPingHistory=[]
+            downloadPingHistory=[],
+            getPingHistory=[]
         )
 
     def on_api_command(self, command, payload):
@@ -129,6 +130,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 self.palette.changeFeedRateSlowPct(payload["value"])
             elif command == "downloadPingHistory":
                 data = self.palette.downloadPingHistory()
+            elif command == "getPingHistory":
+                data = self.palette.pingHistory()
             response = "POST request (%s) successful" % command
             return flask.jsonify(response=response, data=data, status=constants.HTTP["SUCCESS"]), constants.HTTP["SUCCESS"]
         except Exception as e:
