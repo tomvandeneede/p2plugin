@@ -1486,8 +1486,7 @@ class Omega():
     def handleStartPrintAfterLoad(self):
         if self._settings.get(["autoStartAfterLoad"]):
             self.startPrintFromHub()
-        else:
-            self.updateUI({"command": "alert", "data": "startPrint"})
+        self.updateUI({"command": "alert", "data": "startPrint"})
 
     def handleDrivesLoading(self):
         self.currentStatus = constants.STATUS["LOADING_DRIVES"]
