@@ -38,6 +38,8 @@ On your OctoPrint server, manually install this plugin via the Plugin Manager us
 
 [Clifford Roche](https://gitlab.com/clifford.roche) - Minor Modifications
 
+[Gaston Dombiak](https://gitlab.com/gdombi) - Minor Modifications
+
 ## License
 
 This project is licensed under Creative Commons Public Licenses - see the [LICENSE](https://gitlab.com/mosaic-mfg/canvas-plugin/blob/master/LICENSE) file for more details.
