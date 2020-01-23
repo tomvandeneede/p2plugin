@@ -130,7 +130,12 @@ const Palette2Alerts = {
           </label>
         </li>
       </ul>`,
-      confirmButtonText: confirmLabel
+      confirmButtonText: confirmLabel,
+      preConfirm: () => {
+        // return text label when user clicks on confirmButton
+        // "Okay" = close modal and do nothing, "Start Print" = actually start print
+        return confirmLabel;
+      },
     });
   },
   autoLoadFailAlert: () => {

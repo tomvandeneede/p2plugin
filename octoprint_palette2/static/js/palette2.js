@@ -471,7 +471,7 @@ function OmegaViewModel(parameters) {
         self.changeAutoStartAfterLoad(event.target.checked);
       });
       Palette2Alerts.readyToStartAlert(self.displaySetupAlerts(), self.autoStartAfterLoad()).then(result => {
-        if (!self.autoStartAfterLoad() && result.hasOwnProperty("value")) {
+        if (result.hasOwnProperty("value") && result.value === 'Start Print') {
           self.startPrintFromHub();
         }
       });
