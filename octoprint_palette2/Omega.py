@@ -1341,9 +1341,10 @@ class Omega():
                 self.actualPrintStarted = True
                 self.updateUI({"command": "currentStatus", "data": self.currentStatus})
                 self.updateUI({"command": "actualPrintStarted", "data": self.actualPrintStarted})
-                self.updateUI({"command": "alert", "data": "printStarted"})
                 self.updateUI({"command": "printPaused", "data": self.printPaused})
                 self._logger.info("Splices being prepared.")
+                if not self._settings.get(["autoStartAfterLoad"]):
+                    self.updateUI({"command": "alert", "data": "printStarted"})
                 if not self.isSplicing:
                     self._printer.commands('M220 S%s' % self.feedRateNormalPct)
                     advanced_status = 'Not currently splicing: speed -> NORMAL (%s%%)' % self.feedRateNormalPct
