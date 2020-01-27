@@ -49,7 +49,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                     autoVariationCancelPing=False,
                     variationPct=8,
                     variationPingStart=1,
-                    showPingOnPrinter=False
+                    showPingOnPrinter=False,
+                    autoStartAfterLoad=False,
                     )
 
     def get_template_configs(self):
@@ -85,7 +86,9 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             changeFeedRateNormalPct=["value"],
             changeFeedRateSlowPct=["value"],
             startAutoLoad=[],
-            downloadPingHistory=[]
+            downloadPingHistory=[],
+            getPingHistory=[],
+            changeAutoStartAfterLoad=["condition"]
         )
 
     def on_api_command(self, command, payload):
@@ -129,6 +132,10 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 self.palette.changeFeedRateSlowPct(payload["value"])
             elif command == "downloadPingHistory":
                 data = self.palette.downloadPingHistory()
+            elif command == "getPingHistory":
+                data = self.palette.pingHistory()
+            elif command == "changeAutoStartAfterLoad":
+                data = self.palette.changeAutoStartAfterLoad(payload["condition"])
             response = "POST request (%s) successful" % command
             return flask.jsonify(response=response, data=data, status=constants.HTTP["SUCCESS"]), constants.HTTP["SUCCESS"]
         except Exception as e:
@@ -175,17 +182,12 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             elif "FileRemoved" in event:
                 self.palette.getAllMCFFilenames()
             elif "SettingsUpdated" in event:
-                self._logger.info("Auto-reconnect: %s" % str(self._settings.get(["autoconnect"])))
-                self._logger.info("Display Alerts: %s" % str(self._settings.get(["palette2Alerts"])))
-                self._logger.info("Display Advanced Options: %s" % str(self._settings.get(["advancedOptions"])))
-                self.palette.updateUI({"command": "autoConnect", "data": self._settings.get(["autoconnect"])})
-                self.palette.updateUI({"command": "displaySetupAlerts", "data": self._settings.get(["palette2Alerts"])})
-                self.palette.updateUI({"command": "advanced", "subCommand": "displayAdvancedOptions", "data": self._settings.get(["advancedOptions"])})
+                self.palette.settingsUpdateUI()
                 if not self._settings.get(["advancedOptions"]):
                     self.palette.changeAutoVariationCancelPing(False)
                     self.palette.changeShowPingOnPrinter(False)
                     self.palette.changeFeedRateControl(False)
-                self.palette.advanced_update_variables()
+                self.palette.advancedUpdateVariables()
                 if self._settings.get(["autoconnect"]):
                     self.palette.startConnectionThread()
                 else:

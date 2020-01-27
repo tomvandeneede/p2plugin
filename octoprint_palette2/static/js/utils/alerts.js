@@ -105,25 +105,38 @@ const Palette2Alerts = {
       type: "error"
     });
   },
-  readyToStartAlert: setupAlertSetting => {
-    if (setupAlertSetting) {
-      return swal({
-        title: "Filament in place and ready to go",
-        text: `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`,
-        type: "info",
-        inputClass: "setup-checkbox",
-        input: "checkbox",
-        inputPlaceholder: "Don't show me these setup alerts anymore",
-        confirmButtonText: "Start Print"
-      });
-    } else {
-      return swal({
-        title: "Filament in place and ready to go",
-        text: `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`,
-        type: "info",
-        confirmButtonText: "Start Print"
-      });
-    }
+  readyToStartAlert: (displayAlertsSetting, autoStartAfterLoadSetting) => {
+    const titleLabel = "Filament in place and ready to go";
+    const confirmLabel = autoStartAfterLoadSetting ? "Okay" : "Start Print";
+    const bodyLabel = autoStartAfterLoadSetting
+      ? "Your print should be starting automatically."
+      : `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`
+    return swal({
+      title: titleLabel,
+      type: "info",
+      html: `
+      <div>${bodyLabel}</div>
+      <ul class="swal2-p2-settings">
+        <li class="swal2-p2-setting">
+          <input type="checkbox" id="swal2-p2-checkbox1" ${displayAlertsSetting ? null : 'checked'}>
+          <label for="swal2-p2-checkbox1">
+            Don't show me these setup alerts anymore
+          </label>
+        </li>
+        <li class="swal2-p2-setting">
+          <input type="checkbox" id="swal2-p2-checkbox2" ${autoStartAfterLoadSetting ? 'checked' : null}>
+          <label for="swal2-p2-checkbox2">
+            Start future prints automatically after loading sequence
+          </label>
+        </li>
+      </ul>`,
+      confirmButtonText: confirmLabel,
+      preConfirm: () => {
+        // return text label when user clicks on confirmButton
+        // "Okay" = close modal and do nothing, "Start Print" = actually start print
+        return confirmLabel;
+      },
+    });
   },
   autoLoadFailAlert: () => {
     return swal({
