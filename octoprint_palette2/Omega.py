@@ -1485,7 +1485,7 @@ class Omega():
                     self.handleStartPrintAfterLoad()
 
     def handleStartPrintAfterLoad(self):
-        if self._settings.get(["autoStartAfterLoad"]):
+        if not self.firstTime and self._settings.get(["autoStartAfterLoad"]):
             self.startPrintFromHub()
         self.updateUI({"command": "alert", "data": "startPrint"})
 

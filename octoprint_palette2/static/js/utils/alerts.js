@@ -105,10 +105,10 @@ const Palette2Alerts = {
       type: "error"
     });
   },
-  readyToStartAlert: (displayAlertsSetting, autoStartAfterLoadSetting) => {
+  readyToStartAlert: (displayAlertsSetting, autoStartAfterLoadSetting, firstTimePrint) => {
     const titleLabel = "Filament in place and ready to go";
-    const confirmLabel = autoStartAfterLoadSetting ? "Okay" : "Start Print";
-    const bodyLabel = autoStartAfterLoadSetting
+    const confirmLabel = !firstTimePrint && autoStartAfterLoadSetting? "Okay" : "Start Print";
+    const bodyLabel = !firstTimePrint && autoStartAfterLoadSetting
       ? "Your print should be starting automatically."
       : `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`
     return swal({

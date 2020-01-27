@@ -470,7 +470,7 @@ function OmegaViewModel(parameters) {
       $("body").on("click", "#swal2-p2-checkbox2", event => {
         self.changeAutoStartAfterLoad(event.target.checked);
       });
-      Palette2Alerts.readyToStartAlert(self.displaySetupAlerts(), self.autoStartAfterLoad()).then(result => {
+      Palette2Alerts.readyToStartAlert(self.displaySetupAlerts(), self.autoStartAfterLoad(), self.firstTime).then(result => {
         if (result.hasOwnProperty("value") && result.value === 'Start Print') {
           self.startPrintFromHub();
         }
