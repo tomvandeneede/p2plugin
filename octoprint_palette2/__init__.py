@@ -87,6 +87,7 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
             startAutoLoad=[],
             downloadPingHistory=[],
             getPingHistory=[],
+            getJobData=[],
             changeAutoStartAfterLoad=["condition"]
         )
 
@@ -133,6 +134,8 @@ class P2Plugin(octoprint.plugin.StartupPlugin,
                 data = self.palette.downloadPingHistory()
             elif command == "getPingHistory":
                 data = self.palette.pingHistory()
+            elif command == "getJobData":
+                data = self.palette.getJobData()
             elif command == "changeAutoStartAfterLoad":
                 data = self.palette.changeAutoStartAfterLoad(payload["condition"])
             response = "POST request (%s) successful" % command

@@ -536,6 +536,22 @@ class Omega():
     def cancel(self):
         self.enqueueCmd(constants.COMMANDS["CANCEL"])
 
+    def getJobData(self):
+        data = {}
+        data["pings"] = self.pings
+        data["pongs"] = self.pongs
+        data["actualPrintStarted"] = self.actualPrintStarted
+        data["palette2SetupStarted"] = self.palette2SetupStarted
+        data["firstTime"] = self.firstTime
+        data["currentStatus"] = self.currentStatus
+        data["totalSplices"] = self.msfNS
+        data["currentSplice"] = self.currentSplice
+        data["p2Connection"] = self.connected
+        data["filamentLength"] = self.filamentLength
+        data["amountLeftToExtrude"] = self.amountLeftToExtrude
+        data["printPaused"] = self._printer.is_paused()
+        return data
+
     def updateUIAll(self):
         self._logger.info("Updating all UI variables")
         self.updateUI({"command": "printHeartbeatCheck", "data": self.printHeartbeatCheck}, True)
