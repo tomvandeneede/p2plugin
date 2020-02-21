@@ -540,9 +540,6 @@ class Omega():
         data = {}
         data["pings"] = self.pings
         data["pongs"] = self.pongs
-        data["actualPrintStarted"] = self.actualPrintStarted
-        data["palette2SetupStarted"] = self.palette2SetupStarted
-        data["firstTime"] = self.firstTime
         data["currentStatus"] = self.currentStatus
         data["totalSplices"] = self.msfNS
         data["currentSplice"] = self.currentSplice
@@ -550,6 +547,7 @@ class Omega():
         data["filamentLength"] = self.filamentLength
         data["amountLeftToExtrude"] = self.amountLeftToExtrude
         data["printPaused"] = self._printer.is_paused()
+        data["isSplicing"] = self.isSplicing
         return data
 
     def updateUIAll(self):
