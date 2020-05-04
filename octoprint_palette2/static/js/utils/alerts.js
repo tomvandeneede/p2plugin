@@ -110,7 +110,7 @@ const Palette2Alerts = {
     const confirmLabel = autoStartAfterLoadSetting ? "Okay" : "Start Print";
     const bodyLabel = autoStartAfterLoadSetting
       ? "Your print should be starting automatically."
-      : `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`
+      : `Please press "Start Print" below or directly on your Palette 2 screen to begin your print.`;
     return swal({
       title: titleLabel,
       type: "info",
